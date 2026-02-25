@@ -2,6 +2,8 @@ const API = "http://127.0.0.1:5000";
 
 let isLogin = true;
 
+/* ================= AUTH ================= */
+
 function toggleMode() {
   isLogin = !isLogin;
 
@@ -30,17 +32,11 @@ async function submitForm(event) {
 
   const body = isLogin
     ? { email, password }
-    : {
-        name: "User",
-        email,
-        password
-      };
+    : { name: "User", email, password };
 
   const res = await fetch(API + endpoint, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
 
@@ -60,144 +56,138 @@ async function submitForm(event) {
   }
 }
 
-function goToUpload() {
-    window.location.href = "upload.html";
+/* ================= DASHBOARD ================= */
+
+async function loadDashboard() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  await loadRecords();
+  await loadVisits();
 }
 
-async function viewRecords() {
-    const token = localStorage.getItem("token");
+/* ================= RECORDS ================= */
 
-    const res = await fetch(`${API}/records/my-records`, {
-        headers: { "Authorization": "Bearer " + token }
-    });
+async function loadRecords(search = "") {
+  const token = localStorage.getItem("token");
 
-    const data = await res.json();
+  let url = `${API}/records`;
+  if (search) {
+    url += `?search=${encodeURIComponent(search)}`;
+  }
 
-    let html = `<h3>📂 My Medical Records</h3>`;
+  const res = await fetch(url, {
+    headers: { Authorization: "Bearer " + token }
+  });
 
-    if (data.length === 0) {
-        html += `<p>No records found.</p>`;
-    } else {
-        data.forEach(record => {
-            html += `
-            <div class="card">
-                <h4>${record.title}</h4>
-                <p><strong>Category:</strong> ${record.category}</p>
-                <p><strong>Uploaded:</strong> ${new Date(record.upload_date).toLocaleDateString()}</p>
-                <button onclick="preview('${record.image_path}')">Preview</button>
-            </div>`;
-        });
-    }
+  const records = await res.json();
 
-    document.getElementById("output").innerHTML = html;
+  document.getElementById("totalRecords").innerText = records.length;
+
+  const container = document.getElementById("recordsContainer");
+  container.innerHTML = "";
+
+  records.forEach(record => {
+    const div = document.createElement("div");
+    div.className = "record-item";
+    div.innerHTML = `
+      <div class="record-title">${record.title}</div>
+      <div class="record-category">${record.category}</div>
+    `;
+    container.appendChild(div);
+  });
 }
 
-async function emergency() {
-    const token = localStorage.getItem("token");
+/* ================= SEARCH ================= */
 
-    const res = await fetch(`${API}/records/emergency-summary`, {
-        headers: { "Authorization": "Bearer " + token }
-    });
-
-    const data = await res.json();
-
-    let html = `<h3 style="color:red;">🆘 Emergency Summary</h3>`;
-
-    if (data.last_visit) {
-        html += `
-        <div class="card">
-            <h4>Last Visit</h4>
-            <p><strong>Doctor:</strong> ${data.last_visit.doctor_name}</p>
-            <p><strong>Condition:</strong> ${data.last_visit.condition_name}</p>
-            <p><strong>Date:</strong> ${new Date(data.last_visit.visit_date).toLocaleDateString()}</p>
-        </div>`;
-    }
-
-    if (data.latest_lab_report) {
-        html += `
-        <div class="card">
-            <h4>Latest Lab Report</h4>
-            <p><strong>File:</strong> ${data.latest_lab_report.title}</p>
-            <p><strong>Date:</strong> ${new Date(data.latest_lab_report.upload_date).toLocaleDateString()}</p>
-        </div>`;
-    }
-
-    if (data.latest_prescription) {
-        html += `
-        <div class="card">
-            <h4>Latest Prescription</h4>
-            <p><strong>File:</strong> ${data.latest_prescription.title}</p>
-            <p><strong>Date:</strong> ${new Date(data.latest_prescription.upload_date).toLocaleDateString()}</p>
-        </div>`;
-    } else {
-        html += `
-        <div class="card">
-            <h4>Latest Prescription</h4>
-            <p>No prescription found</p>
-        </div>`;
-    }
-
-    document.getElementById("output").innerHTML = html;
+function searchRecords() {
+  const searchValue = document.getElementById("searchInput").value.trim();
+  loadRecords(searchValue);
 }
 
-function exportPDF() {
-    const token = localStorage.getItem("token");
+/* ================= UPLOAD ================= */
 
-    fetch(`${API}/records/export`, {
-        headers: { "Authorization": "Bearer " + token }
-    })
-    .then(res => res.blob())
-    .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "medical_report.pdf";
-        a.click();
-    });
+async function uploadRecord(event) {
+  event.preventDefault();
+
+  const token = localStorage.getItem("token");
+  const fileInput = document.getElementById("fileInput");
+
+  if (!fileInput.files.length) {
+    alert("Please select a file");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", fileInput.files[0]);
+
+  const res = await fetch(`${API}/records/upload`, {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + token
+    },
+    body: formData
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    alert("Upload successful! Category: " + data.category);
+    loadRecords();
+  } else {
+    alert(data.error || "Upload failed");
+  }
 }
+
+/* ================= VISITS ================= */
+
+async function loadVisits() {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API}/visits`, {
+    headers: { Authorization: "Bearer " + token }
+  });
+
+  const visits = await res.json();
+  document.getElementById("totalVisits").innerText = visits.length;
+}
+
+/* ================= EXPORT ================= */
+
+async function exportPDF() {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API}/records/export`, {
+    headers: { Authorization: "Bearer " + token }
+  });
+
+  if (!res.ok) {
+    alert("Export failed");
+    return;
+  }
+
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "medical_report.pdf";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+/* ================= LOGOUT ================= */
 
 function logout() {
-    localStorage.removeItem("token");
-    window.location.href = "login.html";
+  localStorage.removeItem("token");
+  window.location.href = "login.html";
 }
+
+/* ================= AUTO LOAD ================= */
 
 if (window.location.pathname.includes("dashboard.html")) {
-    const token = localStorage.getItem("token");
-    if (!token) {
-        window.location.href = "login.html";
-    }
-}
-
-async function search() {
-    const token = localStorage.getItem("token");
-    const query = document.getElementById("searchInput").value;
-
-    const res = await fetch(`${API}/records/search?q=${query}`, {
-        headers: { "Authorization": "Bearer " + token }
-    });
-
-    const data = await res.json();
-
-    let html = `<h3>🔍 Search Results</h3>`;
-
-    if (data.length === 0) {
-        html += `<p>No results found.</p>`;
-    } else {
-        data.forEach(item => {
-            html += `
-            <div class="card">
-                <p><strong>Type:</strong> ${item.type}</p>
-                <p><strong>Main:</strong> ${item.main}</p>
-                <p><strong>Extra:</strong> ${item.extra}</p>
-                <p><strong>Date:</strong> ${new Date(item.date).toLocaleDateString()}</p>
-            </div>`;
-        });
-    }
-
-    document.getElementById("output").innerHTML = html;
-}
-
-function preview(filename) {
-    const imageUrl = `${API}/uploads/${filename}`;
-    window.open(imageUrl, "_blank");
+  loadDashboard();
 }

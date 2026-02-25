@@ -1,27 +1,86 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Medical Vault Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+  <title>Medical Dashboard</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="navbar">
-    <h2>🏥 Medical Vault</h2>
-    <button onclick="logout()">Logout</button>
-</div>
+<div class="dashboard">
 
-<div class="main">
-    <div class="actions">
-        <input type="text" id="searchInput" placeholder="Search medical history...">
-        <button onclick="search()">Search</button>
-        <button onclick="goToUpload()">Upload Record</button>
-        <button onclick="viewRecords()">View Records</button>
-        <button onclick="emergency()">Emergency Mode</button>
-        <button onclick="exportPDF()">Export PDF</button>
+  <!-- HEADER -->
+  <div class="dashboard-header">
+    <div>
+      <h1>Medical Dashboard</h1>
+      <p>Welcome back, <span id="username">User</span></p>
     </div>
 
-    <div id="output"></div>
+    <div class="header-actions">
+      <button onclick="loadDashboard()">Refresh All</button>
+      <button onclick="logout()" class="logout-btn">Logout</button>
+    </div>
+  </div>
+
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h3>Total Records</h3>
+      <p id="totalRecords">0</p>
+    </div>
+
+    <div class="stat-card">
+      <h3>Total Visits</h3>
+      <p id="totalVisits">0</p>
+    </div>
+
+    <div class="stat-card">
+      <h3>Upcoming Reminders</h3>
+      <p id="totalReminders">0</p>
+    </div>
+  </div>
+
+
+  <!-- UPLOAD -->
+  <div class="card">
+    <h2>Upload Record</h2>
+
+    <input type="file" id="fileInput">
+    <button onclick="upload()">Upload Record</button>
+    <p id="message"></p>
+  </div>
+
+
+  <!-- RECORDS -->
+   <div class="search-container">
+    <input 
+        type="text" 
+        id="searchInput" 
+        placeholder="Search records by title or text..."
+    >
+    <button onclick="searchRecords()">Search</button>
+</div>
+  <div class="card">
+    <h2>Records Timeline</h2>
+    <div id="recordsContainer"></div>
+  </div>
+  <!-- VISIT HISTORY -->
+<div class="card">
+  <h2>Visit History</h2>
+
+  <table class="visit-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Doctor</th>
+        <th>Condition</th>
+      </tr>
+    </thead>
+    <tbody id="visitTableBody">
+    </tbody>
+  </table>
+</div>
+
 </div>
 
 <script src="script.js"></script>

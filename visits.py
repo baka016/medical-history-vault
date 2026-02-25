@@ -4,6 +4,9 @@ from database import get_connection
 
 visits_bp = Blueprint("visits", __name__)
 
+# ===============================
+# Add Visit
+# ===============================
 @visits_bp.route("/add", methods=["POST"])
 @jwt_required()
 def add_visit():
@@ -20,7 +23,7 @@ def add_visit():
     cursor = conn.cursor()
 
     cursor.execute("""
-        INSERT INTO visits 
+        INSERT INTO visits
         (user_id, doctor_name, hospital, visit_date, condition_name, notes)
         VALUES (%s, %s, %s, %s, %s, %s)
     """, (user_id, doctor_name, hospital, visit_date, condition_name, notes))
@@ -31,32 +34,28 @@ def add_visit():
 
     return jsonify({"message": "Visit added successfully"}), 201
 
-@visits_bp.route("/my-visits", methods=["GET"])
+
+# ===============================
+# Get Visits
+# ===============================
+@visits_bp.route("", methods=["GET"])
 @jwt_required()
 def get_visits():
     user_id = int(get_jwt_identity())
 
-    condition = request.args.get("condition")
-    date = request.args.get("date")
-
     conn = get_connection()
     cursor = conn.cursor()
 
-    query = "SELECT * FROM visits WHERE user_id=%s"
-    params = [user_id]
+    cursor.execute("""
+        SELECT *
+        FROM visits
+        WHERE user_id=%s
+        ORDER BY visit_date DESC
+    """, (user_id,))
 
-    if condition:
-        query += " AND condition_name LIKE %s"
-        params.append(f"%{condition}%")
-
-    if date:
-        query += " AND visit_date=%s"
-        params.append(date)
-
-    cursor.execute(query, tuple(params))
     visits = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
-    return jsonify(visits), 200
+    return jsonify(visits)
