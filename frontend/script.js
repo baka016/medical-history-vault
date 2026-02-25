@@ -1,41 +1,63 @@
 const API = "http://127.0.0.1:5000";
 
-async function login() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+let isLogin = true;
 
-    const res = await fetch(`${API}/auth/login`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({email, password})
-    });
+function toggleMode() {
+  isLogin = !isLogin;
 
-    const data = await res.json();
+  const title = document.querySelector("h2");
+  const button = document.querySelector("button[type='submit']");
+  const registerBtn = document.querySelector(".linkBtn");
 
-    if (data.token) {
-        localStorage.setItem("token", data.token);
-        window.location.href = "dashboard.html";
-    } else {
-        document.getElementById("message").innerText = data.error;
-    }
+  if (isLogin) {
+    title.innerText = "Welcome back";
+    button.innerText = "Sign In";
+    registerBtn.innerText = "Register";
+  } else {
+    title.innerText = "Create Account";
+    button.innerText = "Register";
+    registerBtn.innerText = "Login";
+  }
 }
 
-async function register() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+async function submitForm(event) {
+  event.preventDefault();
 
-    const res = await fetch(`${API}/auth/register`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            name: "User",
-            email,
-            password
-        })
-    });
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-    const data = await res.json();
-    document.getElementById("message").innerText = data.message || data.error;
+  const endpoint = isLogin ? "/auth/login" : "/auth/register";
+
+  const body = isLogin
+    ? { email, password }
+    : {
+        name: "User",
+        email,
+        password
+      };
+
+  const res = await fetch(API + endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    if (isLogin) {
+      localStorage.setItem("token", data.token);
+      window.location.href = "dashboard.html";
+    } else {
+      alert("Registered successfully! Now login.");
+      toggleMode();
+    }
+  } else {
+    document.getElementById("errorMessage").innerText =
+      data.error || "Something went wrong";
+  }
 }
 
 function goToUpload() {
