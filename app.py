@@ -22,6 +22,10 @@ app.register_blueprint(auth_bp, url_prefix="/auth")
 app.register_blueprint(records_bp, url_prefix="/records")
 app.register_blueprint(visits_bp, url_prefix="/visits")
 
+@app.route("/")
+def home():
+    return "Server is running successfully 🚀"
+
 @app.route('/uploads/<path:filename>')
 def serve_upload(filename):
     return send_from_directory('uploads', filename)
