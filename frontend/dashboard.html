@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Medical Vault Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="navbar">
+    <h2>🏥 Medical Vault</h2>
+    <button onclick="logout()">Logout</button>
+</div>
+
+<div class="main">
+    <div class="actions">
+        <input type="text" id="searchInput" placeholder="Search medical history...">
+        <button onclick="search()">Search</button>
+        <button onclick="goToUpload()">Upload Record</button>
+        <button onclick="viewRecords()">View Records</button>
+        <button onclick="emergency()">Emergency Mode</button>
+        <button onclick="exportPDF()">Export PDF</button>
+    </div>
+
+    <div id="output"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
