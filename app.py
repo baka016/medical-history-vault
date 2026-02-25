@@ -9,7 +9,7 @@ from flask import send_from_directory
 from dotenv import load_dotenv
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="frontend", static_url_path="")
 
 CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -24,7 +24,7 @@ app.register_blueprint(visits_bp, url_prefix="/visits")
 
 @app.route("/")
 def home():
-    return "Server is running successfully 🚀"
+    return app.send_static_file("login.html")
 
 @app.route('/uploads/<path:filename>')
 def serve_upload(filename):
