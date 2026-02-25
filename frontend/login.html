@@ -1,21 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Medical Vault Login</title>
+    <title>Medical Vault - Login</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
-    <h1 style="text-align:center;">🏥 Medical Vault</h1>
 
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+        <div class="left-content">
+            <div class="logo">
+                🛡 Medical Vault
+            </div>
 
-    <button onclick="login()">Login</button>
-    <button onclick="register()">Register</button>
+            <h1>
+                Your Health Records,<br>
+                Secured & Accessible
+            </h1>
 
-    <p id="message"></p>
+            <p class="description">
+                Store, manage, and share your medical records
+                with confidence. HIPAA-compliant security meets
+                intuitive design.
+            </p>
+
+            <div class="features">
+                <span>🔒 End-to-end encrypted</span>
+                <span>🤍 Trusted by doctors</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+        <div class="form-container">
+            <h2>Welcome back</h2>
+            <p class="subtext">Enter your credentials to access your vault</p>
+
+            <form onsubmit="submitForm(event)">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="you@example.com">
+
+                <label>Password</label>
+                <input type="password" id="password" placeholder="••••••••">
+
+                <p id="errorMessage" class="error"></p>
+                <p id="successMessage" class="success"></p>
+
+                <button type="submit">Sign In</button>
+            </form>
+
+            <p class="register">
+                Don't have an account?
+                <button onclick="toggleMode()" class="linkBtn" type="button">
+                    Register
+                </button>
+            </p>
+        </div>
+    </div>
+
 </div>
 
 <script src="script.js"></script>
