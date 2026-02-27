@@ -25,7 +25,7 @@ def register():
         )
         conn.commit()
         return jsonify({"message": "User registered successfully"}), 201
-    except:
+    except Exception as e:
         return jsonify({"error": str(e)}), 400
     finally:
         cursor.close()

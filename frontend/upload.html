@@ -9,30 +9,14 @@
 <div class="dashboard">
     <h2>Upload Medical Record</h2>
 
-    <input type="file" id="fileInput">
-    <button onclick="upload()">Upload</button>
+    <form onsubmit="uploadRecord(event)">
+        <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" required>
+        <button type="submit">Upload</button>
+    </form>
 
-    <p id="message"></p>
+    <p id="message" aria-live="polite"></p>
 </div>
 
 <script src="script.js"></script>
-<script>
-async function upload() {
-    const file = document.getElementById("fileInput").files[0];
-    const token = localStorage.getItem("token");
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const res = await fetch(`${API}/records/upload`, {
-        method: "POST",
-        headers: { "Authorization": "Bearer " + token },
-        body: formData
-    });
-
-    const data = await res.json();
-    document.getElementById("message").innerText = data.message;
-}
-</script>
 </body>
 </html>

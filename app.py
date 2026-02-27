@@ -5,7 +5,7 @@ from datetime import timedelta
 from dotenv import load_dotenv
 import os
 
-from auth import auth_bp
+from auth import auth_bp, bcrypt
 from records import records_bp
 from visits import visits_bp
 from database import get_connection
@@ -23,6 +23,7 @@ app.config["JWT_SECRET_KEY"] = os.getenv(
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=5)
 
 jwt = JWTManager(app)
+bcrypt.init_app(app)
 
 # Register blueprints
 app.register_blueprint(auth_bp, url_prefix="/auth")

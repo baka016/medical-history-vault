@@ -4,83 +4,198 @@
   <title>Medical Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="dashboard-body">
 
-<div class="dashboard">
-
+<div class="page">
   <!-- HEADER -->
-  <div class="dashboard-header">
+  <header class="dashboard-header card">
     <div>
-      <h1>Medical Dashboard</h1>
-      <p>Welcome back, <span id="username">User</span></p>
+      <p class="eyebrow">Medical Dashboard</p>
+      <h1>Welcome back, <span id="username">John Doe</span></h1>
     </div>
-
     <div class="header-actions">
-      <button onclick="loadDashboard()">Refresh All</button>
-      <button onclick="logout()" class="logout-btn">Logout</button>
+      <button class="ghost" onclick="loadDashboard()">
+        <span class="icon">⟳</span> Refresh All
+      </button>
+      <button class="primary" onclick="logout()">Logout</button>
     </div>
-  </div>
-
+  </header>
 
   <!-- STATS -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <h3>Total Records</h3>
-      <p id="totalRecords">0</p>
+  <section class="stats-grid">
+    <div class="stat-card card">
+      <div class="stat-icon blue">📄</div>
+      <div>
+        <p class="stat-label">Total Records</p>
+        <p class="stat-value" id="totalRecords">0</p>
+      </div>
     </div>
-
-    <div class="stat-card">
-      <h3>Total Visits</h3>
-      <p id="totalVisits">0</p>
+    <div class="stat-card card">
+      <div class="stat-icon green">🩺</div>
+      <div>
+        <p class="stat-label">Total Visits</p>
+        <p class="stat-value" id="totalVisits">0</p>
+      </div>
     </div>
-
-    <div class="stat-card">
-      <h3>Upcoming Reminders</h3>
-      <p id="totalReminders">0</p>
+    <div class="stat-card card">
+      <div class="stat-icon teal">🔔</div>
+      <div>
+        <p class="stat-label">Upcoming Reminders</p>
+        <p class="stat-value" id="totalReminders">0</p>
+      </div>
     </div>
-  </div>
+  </section>
 
+  <!-- SEARCH & FILTERS -->
+  <section class="card filter-card">
+    <div class="card-title-row">
+      <div class="title-with-icon">
+        <span class="icon">🔍</span>
+        <h2>Search &amp; Filters</h2>
+      </div>
+      <button class="link" onclick="clearFilters()">Clear</button>
+    </div>
+    <div class="filter-grid">
+      <div class="form-group">
+        <label for="searchInput">Search</label>
+        <div class="input-with-icon">
+          <span class="icon">🔎</span>
+          <input type="text" id="searchInput" placeholder="Search title or extracted text...">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="categorySelect">Category</label>
+        <select id="categorySelect" onchange="searchRecords()">
+          <option value="All">All Categories</option>
+          <option value="Lab Results">Lab Results</option>
+          <option value="Prescription">Prescription</option>
+          <option value="Dental">Dental</option>
+          <option value="Vaccination">Vaccination</option>
+          <option value="General Health">General Health</option>
+        </select>
+      </div>
+    </div>
+  </section>
 
   <!-- UPLOAD -->
-  <div class="card">
-    <h2>Upload Record</h2>
+  <section class="card upload-card">
+    <div class="card-title-row">
+      <div class="title-with-icon">
+        <span class="icon">⤴</span>
+        <h2>Upload Record</h2>
+      </div>
+    </div>
+    <form class="upload-grid" onsubmit="uploadRecord(event)">
+      <div class="form-group">
+        <label for="titleInput">Title</label>
+        <input type="text" id="titleInput" placeholder="e.g., Blood Test Report">
+      </div>
+      <div class="form-group">
+        <label for="uploadCategory">Category (optional)</label>
+        <select id="uploadCategory">
+          <option value="">Auto-detect</option>
+          <option value="Lab Results">Lab Results</option>
+          <option value="Prescription">Prescription</option>
+          <option value="Dental">Dental</option>
+          <option value="Vaccination">Vaccination</option>
+          <option value="General Health">General Health</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="uploadDate">Upload Date</label>
+        <input type="date" id="uploadDate">
+      </div>
+      <div class="form-group">
+        <label for="fileInput">Image / PDF</label>
+        <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" required>
+      </div>
+      <div class="form-actions">
+        <button class="primary" type="submit">Upload Record</button>
+        <p id="message" class="muted" aria-live="polite"></p>
+      </div>
+    </form>
+  </section>
 
-    <input type="file" id="fileInput">
-    <button onclick="upload()">Upload Record</button>
-    <p id="message"></p>
-  </div>
+  <!-- VISITS + REMINDERS -->
+  <section class="two-col">
+    <div class="card">
+      <div class="card-title-row">
+        <div class="title-with-icon">
+          <span class="icon">🩺</span>
+          <h2>Visit History</h2>
+        </div>
+        <button class="link" onclick="loadVisits()">Refresh</button>
+      </div>
+      <table class="visit-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Doctor</th>
+            <th>Condition</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody id="visitTableBody"></tbody>
+      </table>
+    </div>
 
+    <div class="card">
+      <div class="card-title-row">
+        <div class="title-with-icon">
+          <span class="icon">🔔</span>
+          <h2>Reminders</h2>
+        </div>
+        <button class="link" onclick="renderReminders()">Refresh</button>
+      </div>
+      <div id="remindersList" class="reminders-list"></div>
+    </div>
+  </section>
 
-  <!-- RECORDS -->
-   <div class="search-container">
-    <input 
-        type="text" 
-        id="searchInput" 
-        placeholder="Search records by title or text..."
-    >
-    <button onclick="searchRecords()">Search</button>
-</div>
-  <div class="card">
-    <h2>Records Timeline</h2>
-    <div id="recordsContainer"></div>
-  </div>
-  <!-- VISIT HISTORY -->
-<div class="card">
-  <h2>Visit History</h2>
+  <!-- RECORDS TIMELINE -->
+  <section class="card">
+    <div class="card-title-row">
+      <div class="title-with-icon">
+        <span class="icon">🗂</span>
+        <h2>Records Timeline</h2>
+      </div>
+      <span class="muted small" id="recordsCountLabel"></span>
+    </div>
+    <div id="recordsContainer" class="timeline"></div>
+  </section>
 
-  <table class="visit-table">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Doctor</th>
-        <th>Condition</th>
-      </tr>
-    </thead>
-    <tbody id="visitTableBody">
-    </tbody>
-  </table>
-</div>
-
+  <!-- EXPORT -->
+  <section class="card export-card">
+    <div class="card-title-row">
+      <div class="title-with-icon">
+        <span class="icon">⬇</span>
+        <h2>Export PDF Report</h2>
+      </div>
+    </div>
+    <form class="export-grid" onsubmit="handleExport(event)">
+      <div class="form-group">
+        <label for="fromDate">From</label>
+        <input type="date" id="fromDate">
+      </div>
+      <div class="form-group">
+        <label for="toDate">To</label>
+        <input type="date" id="toDate">
+      </div>
+      <div class="form-group">
+        <label for="exportCategory">Category</label>
+        <select id="exportCategory">
+          <option value="All">All</option>
+          <option value="Lab Results">Lab Results</option>
+          <option value="Prescription">Prescription</option>
+          <option value="Dental">Dental</option>
+          <option value="Vaccination">Vaccination</option>
+          <option value="General Health">General Health</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button class="primary" type="submit">Export PDF</button>
+      </div>
+    </form>
+  </section>
 </div>
 
 <script src="script.js"></script>
